@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chat Interface</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            background-color: #f9fafb;
+        }
+
+        .menu-btn {
+            background: transparent;
+            border: none;
+            color: #374151;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .chat-interface {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-name-header {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .chat-header {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .chat-content {
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .chat-actions button {
+            background: #e5e7eb;
+            color: #374151;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .chat-actions button:hover {
+            background: #d1d5db;
+        }
+
+        .input-area {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            padding: 0 16px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .input-field {
+            width: 100%;
+            max-width: none;
+            /* Remove the maximum width constraint */
+            padding: 12px 20px;
+            border-radius: 9999px;
+            border: 2px solid #d1d5db;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .input-area input[type="text"] {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 9999px;
+            border: 2px solid #d1d5db;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .input-area label {
+            display: none;
+        }
+
+        .send-btn {
+            background-color: #4b5563;
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 12px 20px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        #chat-container {
+            height: 500px;
+            overflow-y: scroll;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            background-color: #f1f1f1;
+            border: none;
+            color: #333;
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-menu a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body onload="scrollToBottom()">
+
+    <div id="chat-container" class="flex flex-col justify-items-stretch min-h-screen p-40 space-y-4">
+        <div class="chat-name-header">Saraa</div>
+        {% for message in chat_messages reversed %}
+        {% if message.is_user_message == True %}
+        <div class="chat-interface">
+            <div class="chat-header">You</div>
+            <div class="chat-content">
+                {{ message.text }}
+            </div>
+        </div>
+        {% else %}
+        <div class="chat-interface">
+            <div class="chat-header">Saraa</div>
+            <div class="chat-content">
+                {{ message.text }}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        <div class="input-area-x">
+            <form id="chat_message_form" method="POST">
+                {% csrf_token %}
+                {% for field in form %}
+                {% if field.name == 'text' %}
+                <div class="w-full">
+                    {{ field }}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        function scrollToBottom() {
+            var element = document.getElementById('chat-container');
+            element.scrollTop = element.scrollHeight;
+        }
+
+    </script>
+
+</body>
+
+</html>
