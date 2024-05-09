@@ -9,7 +9,7 @@ class MessageForm(ModelForm):
         widgets = {
             'text': TextInput(attrs={
                 'placeholder': 'Ask anything...',
-                'class': 'input-area-x',
+                'class': 'input-area',
                 'autocomplete': 'off'
             })
         }

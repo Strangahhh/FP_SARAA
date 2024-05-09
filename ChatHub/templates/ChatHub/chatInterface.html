@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Chat Interface</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.11.1/dist/full.min.css" rel="stylesheet" type="text/css" />
     <style>
         body {
             background-color: #f9fafb;
@@ -115,38 +114,117 @@
             overflow-y: scroll;
         }
 
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-toggle {
-            background-color: #f1f1f1;
-            border: none;
-            color: #333;
-            padding: 8px 16px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .dropdown-menu {
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.25);
+            z-index: 30;
             display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-            z-index: 1;
         }
 
-        .dropdown-menu a {
-            color: #333;
-            padding: 12px 16px;
+        .drawer-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 40;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .drawer-sidebar-content {
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+
+        .drawer-link {
+            display: block;
+            padding: 10px;
             text-decoration: none;
+            color: #333;
+            border-radius: 5px;
+        }
+
+        .drawer-link:hover {
+            background-color: #e6e6e6;
+        }
+
+        /* Show drawer sidebar */
+        .drawer-open .drawer-sidebar {
+            transform: translateX(0);
+        }
+
+        .drawer-open .drawer-overlay {
             display: block;
         }
 
-        .dropdown-menu a:hover {
-            background-color: #f1f1f1;
+        .drawer-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 50;
+            padding: 10px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .drawer-toggle-icon {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background-color: #333;
+            position: relative;
+        }
+
+        .drawer-toggle-icon::before,
+        .drawer-toggle-icon::after {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 2px;
+            background-color: #333;
+            position: absolute;
+            left: 0;
+        }
+
+        .drawer-toggle-icon::before {
+            top: -6px;
+        }
+
+        .drawer-toggle-icon::after {
+            bottom: -6px;
+        }
+
+        .file-upload-area {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            text-align: center;
+            background-color: #f8f8f8;
+        }
+
+        #drop-area {
+            padding: 40px 20px;
+            cursor: pointer;
+        }
+
+        #drop-area p {
+            margin: 0;
+            color: #555;
+        }
+
+        #file-input {
+            display: none;
         }
     </style>
 </head>
@@ -172,7 +250,7 @@
         </div>
         {% endif %}
         {% endfor %}
-        <div class="input-area-x">
+        <div class="input-area">
             <form id="chat_message_form" method="POST">
                 {% csrf_token %}
                 {% for field in form %}
@@ -185,15 +263,53 @@
             </form>
         </div>
 
-    </div>
+        <button class="drawer-toggle">
+            <span class="drawer-toggle-icon"></span>
+        </button>
 
-    <script>
-        function scrollToBottom() {
-            var element = document.getElementById('chat-container');
-            element.scrollTop = element.scrollHeight;
-        }
+        <div class="relative">
+            <div class="drawer-overlay hidden"></div>
+            <div class="drawer-sidebar">
+                <div class="drawer-sidebar-content">
+                    <!-- Sidebar content goes here -->
+                    <div class="file-upload-area">
+                        <div id="drop-area">
+                            <p>Click to upload or drag and drop</p>
+                            <p>SVG, PNG, JPG or GIF (Max. 800x400px)</p>
+                        </div>
+                        <input type="file" id="file-input" accept="image/*" multiple>
+                    </div>
+                    <ul>
+                        <li><a href="#" class="drawer-link">Home</a></li>
+                        <li><a href="#" class="drawer-link">About</a></li>
+                        <li><a href="#" class="drawer-link">Services</a></li>
+                        <li><a href="#" class="drawer-link">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-    </script>
+        <script>
+            function scrollToBottom() {
+                var element = document.getElementById('chat-container');
+                element.scrollTop = element.scrollHeight;
+            }
+
+        </script>
+        <script>
+            const drawerToggle = document.querySelector('.drawer-toggle');
+            const drawerSidebar = document.querySelector('.drawer-sidebar');
+            const drawerOverlay = document.querySelector('.drawer-overlay');
+            const drawerParent = document.querySelector('.relative');
+
+            drawerToggle.addEventListener('click', () => {
+                drawerParent.classList.toggle('drawer-open');
+            });
+
+            drawerOverlay.addEventListener('click', () => {
+                drawerParent.classList.remove('drawer-open');
+            });
+        </script>
 
 </body>
 
