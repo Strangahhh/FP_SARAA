@@ -203,36 +203,13 @@
         .drawer-toggle-icon::after {
             bottom: -6px;
         }
-
-        .file-upload-area {
-            margin-bottom: 20px;
-            padding: 20px;
-            border: 2px dashed #ccc;
-            border-radius: 5px;
-            text-align: center;
-            background-color: #f8f8f8;
-        }
-
-        #drop-area {
-            padding: 40px 20px;
-            cursor: pointer;
-        }
-
-        #drop-area p {
-            margin: 0;
-            color: #555;
-        }
-
-        #file-input {
-            display: none;
-        }
     </style>
 </head>
 
 <body onload="scrollToBottom()">
 
     <div id="chat-container" class="flex flex-col justify-items-stretch min-h-screen p-40 space-y-4">
-        <div class="chat-name-header">Saraa</div>
+        <div class="chat-name-header">{{ chat_channel.chat_name }}</div>
         {% for message in chat_messages reversed %}
         {% if message.is_user_message == True %}
         <div class="chat-interface">
@@ -251,11 +228,16 @@
         {% endif %}
         {% endfor %}
         <div class="input-area">
-            <form id="chat_message_form" method="POST">
+            <form id="chat_message_form" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% for field in form %}
                 {% if field.name == 'text' %}
                 <div class="w-full">
+                    {{ field }}
+                </div>
+                {% elif field.name == 'file' %}
+                <div>
+                    {{ field.label_tag }}
                     {{ field }}
                 </div>
                 {% endif %}
@@ -272,18 +254,20 @@
             <div class="drawer-sidebar">
                 <div class="drawer-sidebar-content">
                     <!-- Sidebar content goes here -->
-                    <div class="file-upload-area">
-                        <div id="drop-area">
-                            <p>Click to upload or drag and drop</p>
-                            <p>SVG, PNG, JPG or GIF (Max. 800x400px)</p>
-                        </div>
-                        <input type="file" id="file-input" accept="image/*" multiple>
-                    </div>
+                    <form method="post" action="{% url 'create_chat_channel' %}">
+                        {% csrf_token %}
+                        <input type="text" name="chat_name" placeholder="New Chat +" class="drawer-link">
+
+                    </form>
                     <ul>
-                        <li><a href="#" class="drawer-link">Home</a></li>
-                        <li><a href="#" class="drawer-link">About</a></li>
-                        <li><a href="#" class="drawer-link">Services</a></li>
-                        <li><a href="#" class="drawer-link">Contact</a></li>
+                        {% for chat_channel in chat_channels_list %}
+                        <li>
+                            <a href="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}"
+                                class="drawer-link">{{ chat_channel.chat_name }}</a>
+                            <button class="delete-button text-red-700 " type="button"
+                                data-chat-uuid="{{ chat_channel.chat_uuid }}">Delete</button>
+                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
@@ -295,8 +279,6 @@
                 element.scrollTop = element.scrollHeight;
             }
 
-        </script>
-        <script>
             const drawerToggle = document.querySelector('.drawer-toggle');
             const drawerSidebar = document.querySelector('.drawer-sidebar');
             const drawerOverlay = document.querySelector('.drawer-overlay');
@@ -309,6 +291,49 @@
             drawerOverlay.addEventListener('click', () => {
                 drawerParent.classList.remove('drawer-open');
             });
+
+            document.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', async event => {
+                    const chat_uuid = event.target.dataset.chatUuid;
+                    if (confirm(`Are you sure you want to delete the chat with UUID ${chat_uuid}?`)) {
+                        try {
+                            const response = await fetch(`/chathub/${chat_uuid}/delete_chat/`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': getCookie('csrftoken')
+                                }
+                            });
+                            if (response.ok) {
+                                const data = await response.json();
+                                alert(data.message);
+                                const deletedChat = event.target.closest('li');
+                                deletedChat.remove();
+                            } else {
+                                alert('Error deleting chat channel');
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('An error occurred while deleting the chat channel.');
+                        }
+                    }
+                });
+            });
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
         </script>
 
 </body>

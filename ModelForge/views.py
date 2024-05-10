@@ -1,3 +1,8 @@
 from django.shortcuts import render
+import ollama
 
-# Create your views here.
+def resx(message):
+    prompt = message
+    output = ollama.generate(model="Saraa-s", prompt=prompt)
+    output = output['response']
+    return output

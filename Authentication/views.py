@@ -1,4 +1,6 @@
+import uuid
 from django.shortcuts import render, redirect
+from ChatHub.models import ChatChannel
 from .forms import RegisterForm, CustomAuthenticationForm
 from django.contrib.auth import login, authenticate
 from .models import CustomUser
@@ -32,7 +34,17 @@ def login_request(request):
             user = authenticate(username=email, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('ChatInterface')
+                
+                # Get or create a default ChatChannel for the user
+                default_chat_channel, created = ChatChannel.objects.get_or_create(
+                    user=user,
+                    defaults={
+                        'chat_name': f'Default Chat for {user.name}',
+                        'chat_uuid': uuid.uuid4()
+                    }
+                )
+                
+                return redirect('chat_interface', chat_channel_uuid=default_chat_channel.chat_uuid)
             else:
                 return render(request, 'Authentication/enter_password.html', {'error': 'Invalid password', 'email': email})
 
