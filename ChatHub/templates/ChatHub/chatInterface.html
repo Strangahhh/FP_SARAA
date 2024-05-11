@@ -315,9 +315,11 @@
                             });
                             if (response.ok) {
                                 const data = await response.json();
-                                alert(data.message);
-                                const deletedChat = event.target.closest('li');
-                                deletedChat.remove();
+                                alert(data.message);  // Notify the user
+                                if (data.redirect) {
+                                    // Redirect if URL is provided in the response
+                                    window.location.href = data.redirect;
+                                }
                             } else {
                                 alert('Error deleting chat channel');
                             }

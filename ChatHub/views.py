@@ -1,5 +1,6 @@
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from .forms import MessageForm
 from .models import ChatChannel, ChatMessage
 from django.contrib.auth.decorators import login_required
@@ -22,10 +23,15 @@ def create_chat_channel_button(request):
 @login_required
 def chat_interface(request, chat_channel_uuid):
     try:
-        chat_channel = get_object_or_404(ChatChannel, chat_uuid=chat_channel_uuid)
-    except Http404:
-        return JsonResponse({'message': 'Invalid chat channel UUID.'})
-    chat_channels_list = ChatChannel.objects.all()
+        chat_channels = ChatChannel.objects.filter(chat_uuid=chat_channel_uuid, user=request.user)
+        if chat_channels.exists():
+            chat_channel = chat_channels.order_by('-id').first()
+        else:
+            return JsonResponse({'message': 'Invalid chat channel UUID.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'message': str(e)}, status=500)
+
+    chat_channels_list = ChatChannel.objects.filter(user=request.user)
     chat_messages = chat_channel.chat_messages.all()
     form = MessageForm()
 
@@ -36,8 +42,6 @@ def chat_interface(request, chat_channel_uuid):
             message_user.user = request.user
             message_user.chat = chat_channel
             message_user.save()
-
-            # AI response
             ai_response_text = resx(message_user.text)
             ai_message = ChatMessage(user=request.user, text=ai_response_text, is_user_message=False, chat=chat_channel)
             ai_message.save()
@@ -54,7 +58,17 @@ def chat_interface(request, chat_channel_uuid):
 def delete_chat(request, chat_uuid):
     try:
         chat_channel = get_object_or_404(ChatChannel, chat_uuid=chat_uuid)
+        other_chats = ChatChannel.objects.filter(user=request.user).exclude(chat_uuid=chat_uuid)
+
         chat_channel.delete()
-        return JsonResponse({'message': 'Chat channel deleted successfully'})
+
+        if other_chats.exists():
+            redirect_url = reverse('chat_interface', kwargs={'chat_channel_uuid': other_chats.first().chat_uuid})
+            return JsonResponse({'message': 'Chat channel deleted successfully', 'redirect': redirect_url})
+        else:
+            new_chat = ChatChannel.objects.create(chat_name='Default Chat', user=request.user, chat_uuid=uuid.uuid4())
+            redirect_url = reverse('chat_interface', kwargs={'chat_channel_uuid': new_chat.chat_uuid})
+            return JsonResponse({'message': 'Chat channel deleted and new chat created', 'redirect': redirect_url})
+
     except Http404:
-        return JsonResponse({'message': 'Chat channel not found.'})
+        return JsonResponse({'message': 'Chat channel not found.'}, status=404)
