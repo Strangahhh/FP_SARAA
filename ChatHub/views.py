@@ -3,8 +3,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import MessageForm
 from .models import ChatChannel, ChatMessage
 from django.contrib.auth.decorators import login_required
-from django.core.files.uploadedfile import TemporaryUploadedFile
-from django.core.files.storage import default_storage
 from ModelForge.views import resx
 import uuid
 

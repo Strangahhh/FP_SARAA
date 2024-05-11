@@ -151,6 +151,9 @@
             text-decoration: none;
             color: #333;
             border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .drawer-link:hover {
@@ -202,6 +205,10 @@
 
         .drawer-toggle-icon::after {
             bottom: -6px;
+        }
+
+        .spacer {
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -257,15 +264,17 @@
                     <form method="post" action="{% url 'create_chat_channel' %}">
                         {% csrf_token %}
                         <input type="text" name="chat_name" placeholder="New Chat +" class="drawer-link">
-
                     </form>
                     <ul>
                         {% for chat_channel in chat_channels_list %}
                         <li>
                             <a href="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}"
-                                class="drawer-link">{{ chat_channel.chat_name }}</a>
-                            <button class="delete-button text-red-700 " type="button"
-                                data-chat-uuid="{{ chat_channel.chat_uuid }}">Delete</button>
+                                class="drawer-link my-3">
+                                {{ chat_channel.chat_name }}
+                                <span class="spacer"></span>
+                                <button class="delete-button text-red-700" type="button"
+                                    data-chat-uuid="{{ chat_channel.chat_uuid }}">Delete</button>
+                            </a>
                         </li>
                         {% endfor %}
                     </ul>
