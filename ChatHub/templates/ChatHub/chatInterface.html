@@ -278,6 +278,12 @@
                         </li>
                         {% endfor %}
                     </ul>
+                    <ul>
+                        <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="drawer-link my-3">Logout</button>
+                        </form>
+                    </ul>
                 </div>
             </div>
         </div>

@@ -6,3 +6,5 @@ def resx(message):
     output = ollama.generate(model="Saraa-s", prompt=prompt)
     output = output['response']
     return output
+
+
