@@ -1,10 +1,8 @@
 from django import forms
-from django.forms import ModelForm, TextInput, FileField
-from .models import *
+from django.forms import ModelForm, TextInput
+from .models import ChatMessage
 
 class MessageForm(ModelForm):
-    file = FileField(required=False)
-
     class Meta:
         model = ChatMessage
         fields = ['text']
@@ -15,3 +13,6 @@ class MessageForm(ModelForm):
                 'autocomplete': 'off'
             })
         }
+
+class UploadFileForm(forms.Form):
+    file = forms.FileField()

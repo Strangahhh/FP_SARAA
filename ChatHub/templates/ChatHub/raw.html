@@ -1,0 +1,39 @@
+<div>
+    <h3>Chat Channels</h3>
+    <ul>
+        {% for channel in chat_channels_list %}
+            <li>
+                <a href="{% url 'chat_interface' chat_channel_uuid=channel.chat_uuid %}">{{ channel.chat_name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div>
+    <h3>Chat Messages</h3>
+    <ul>
+        {% for message in chat_messages %}
+            <li>
+                <strong>{{ message.user.username }}:</strong> {{ message.text }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div>
+    <h3>Send a Message</h3>
+    <form method="post" action="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}">
+        {% csrf_token %}
+        {{ message_form.as_p }}
+        <button type="submit" name="message">Send</button>
+    </form>
+</div>
+
+<div>
+    <h3>Upload a PDF</h3>
+    <form method="post" action="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ upload_form.as_p }}
+        <button type="submit" name="file">Upload</button>
+    </form>
+</div>

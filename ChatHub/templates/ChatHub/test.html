@@ -209,100 +209,6 @@
         .spacer {
             margin-right: 10px;
         }
-
-        /* Second Drawer */
-        .drawer2-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.25);
-            z-index: 50;
-            display: none;
-        }
-
-        .drawer2-sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100%;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            z-index: 60;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .drawer2-sidebar-content {
-            height: 100%;
-            overflow-y: auto;
-            padding: 20px;
-            background-color: #f7f7f7;
-        }
-
-        .drawer2-link {
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-            color: #333;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .drawer2-link:hover {
-            background-color: #e6e6e6;
-        }
-
-        /* Show drawer2 sidebar */
-        .drawer2-open .drawer2-sidebar {
-            transform: translateX(0);
-        }
-
-        .drawer2-open .drawer2-overlay {
-            display: block;
-        }
-
-        .drawer2-toggle {
-            position: fixed;
-            bottom: 60px;
-            left: 20px;
-            z-index: 70;
-            padding: 10px;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-        }
-
-        .drawer2-toggle-icon {
-            display: block;
-            width: 20px;
-            height: 2px;
-            background-color: #333;
-            position: relative;
-        }
-
-        .drawer2-toggle-icon::before,
-        .drawer2-toggle-icon::after {
-            content: '';
-            display: block;
-            width: 20px;
-            height: 2px;
-            background-color: #333;
-            position: absolute;
-            left: 0;
-        }
-
-        .drawer2-toggle-icon::before {
-            top: -6px;
-        }
-
-        .drawer2-toggle-icon::after {
-            bottom: -6px;
-        }
     </style>
 </head>
 
@@ -328,8 +234,7 @@
         {% endif %}
         {% endfor %}
         <div class="input-area">
-            <form id="chat_message_form" method="POST"
-                action="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}">
+            <form id="chat_message_form" method="POST" action="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}">
                 {% csrf_token %}
                 <div class="w-full">
                     {{ message_form.text }}
@@ -337,13 +242,18 @@
                 <button type="submit" class="send-btn">Send</button>
             </form>
         </div>
+        <!-- <div class="input-area mt-4">
+            <form method="post" action="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="w-full">
+                    {{ upload_form.file }}
+                </div>
+                <button type="submit" class="send-btn">Upload</button>
+            </form>
+        </div> -->
 
         <button class="drawer-toggle">
             <span class="drawer-toggle-icon"></span>
-        </button>
-
-        <button class="drawer2-toggle">
-            <span class="drawer2-toggle-icon"></span>
         </button>
 
         <div class="relative">
@@ -376,35 +286,6 @@
                     </ul>
                 </div>
             </div>
-
-            <div class="drawer2-overlay hidden"></div>
-            <div class="drawer2-sidebar">
-                <div class="drawer2-sidebar-content">
-                    <!-- Sidebar content goes here -->
-                    <ul>
-                        <h3 class="font-bold" >Upload a PDF</h3>
-                        <form method="post" action="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}"
-                            enctype="multipart/form-data" class="items-center justify-center w-full my-3">
-                            {% csrf_token %}
-                            <label for="dropzone-file"
-                                class="flex flex-row items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
-                                    </svg>
-                                    <p id="file-name" class="text-sm text-gray-500 dark:text-gray-400"></p>
-                                </div>
-                                <input id="dropzone-file" name="file" type="file" class="hidden"
-                                    onchange="displayFileName()" />
-                            </label>
-                            <button type="submit" class="drawer-link my-3">Upload</button>
-                        </form>
-                    </ul>
-                </div>
-            </div>
         </div>
 
         <script>
@@ -424,18 +305,6 @@
 
             drawerOverlay.addEventListener('click', () => {
                 drawerParent.classList.remove('drawer-open');
-            });
-
-            const drawer2Toggle = document.querySelector('.drawer2-toggle');
-            const drawer2Sidebar = document.querySelector('.drawer2-sidebar');
-            const drawer2Overlay = document.querySelector('.drawer2-overlay');
-
-            drawer2Toggle.addEventListener('click', () => {
-                drawerParent.classList.toggle('drawer2-open');
-            });
-
-            drawer2Overlay.addEventListener('click', () => {
-                drawerParent.classList.remove('drawer2-open');
             });
 
             document.querySelectorAll('.delete-button').forEach(button => {
@@ -482,14 +351,6 @@
                 }
                 return cookieValue;
             }
-
-            function displayFileName() {
-                const fileInput = document.getElementById('dropzone-file');
-                const fileNameDisplay = document.getElementById('file-name');
-                const fileName = fileInput.files[0] ? fileInput.files[0].name : '';
-                fileNameDisplay.textContent = fileName;
-            }
-
         </script>
 
 </body>
