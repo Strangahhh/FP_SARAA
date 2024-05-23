@@ -4,10 +4,12 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.core.files.storage import FileSystemStorage
+
+from ModelForge.views import resx
 from .forms import MessageForm, UploadFileForm
 from .models import ChatChannel, ChatMessage
 from django.contrib.auth.decorators import login_required
-from .chroma_utils import add_to_chroma, query_rag
+from .chroma_utils import add_to_chroma, get_contexts, query_rag, summary
 from langchain_community.document_loaders import PyPDFLoader
 import uuid
 
@@ -49,7 +51,7 @@ def chat_interface(request, chat_channel_uuid):
                 message_user.user = request.user
                 message_user.chat = chat_channel
                 message_user.save()
-                ai_response_text = query_rag(message_user.text)
+                ai_response_text = resx(message_user.text)
                 ai_message = ChatMessage(user=request.user, text=ai_response_text, is_user_message=False, chat=chat_channel)
                 ai_message.save()
                 return redirect('chat_interface', chat_channel_uuid=chat_channel.chat_uuid)
@@ -61,11 +63,16 @@ def chat_interface(request, chat_channel_uuid):
                 fs = FileSystemStorage()
                 filename = fs.save(file.name, file)
                 file_path = fs.path(filename)
-                # Load the PDF
                 loader = PyPDFLoader(file_path)
                 document = loader.load()
-                # Add the document to Chroma DB
-                add_to_chroma(document)
+                context_text = "\n\n".join([doc.page_content for doc in document])
+                # add_to_chroma(document)
+                # conversation_string = get_contexts()
+                summy = summary(context_text)
+                message_user = ChatMessage(user=request.user, text=filename, is_user_message=True, chat=chat_channel)
+                message_user.save()
+                ai_message = ChatMessage(user=request.user, text=f"""{summy}""", is_user_message=False, chat=chat_channel)
+                ai_message.save()
                 return redirect('chat_interface', chat_channel_uuid=chat_channel.chat_uuid)
 
     return render(request, 'ChatHub/chatInterface.html', {

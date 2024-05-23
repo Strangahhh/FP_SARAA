@@ -311,18 +311,18 @@
     <div id="chat-container" class="flex flex-col justify-items-stretch min-h-screen p-40 space-y-4">
         <div class="chat-name-header">{{ chat_channel.chat_name }}</div>
         {% for message in chat_messages reversed %}
-        {% if message.is_user_message == True %}
+        {% if message.is_user_message %}
         <div class="chat-interface">
             <div class="chat-header">You</div>
             <div class="chat-content">
-                {{ message.text }}
+                {{ message.text|linebreaks }}
             </div>
         </div>
         {% else %}
         <div class="chat-interface">
             <div class="chat-header">Saraa</div>
             <div class="chat-content">
-                {{ message.text }}
+                {{ message.text|linebreaks }}
             </div>
         </div>
         {% endif %}
@@ -382,7 +382,7 @@
                 <div class="drawer2-sidebar-content">
                     <!-- Sidebar content goes here -->
                     <ul>
-                        <h3 class="font-bold" >Upload a PDF</h3>
+                        <h3 class="font-bold">Upload a PDF</h3>
                         <form method="post" action="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}"
                             enctype="multipart/form-data" class="items-center justify-center w-full my-3">
                             {% csrf_token %}
