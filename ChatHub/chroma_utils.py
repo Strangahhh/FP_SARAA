@@ -164,3 +164,4 @@ def summary(conversation_string):
     },
     ])
     return response['message']['content']
+

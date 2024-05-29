@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.core.files.storage import FileSystemStorage
 
-from ModelForge.views import resx
+from ModelForge.views import get_chat_completion, resx
 from .forms import MessageForm, UploadFileForm
 from .models import ChatChannel, ChatMessage
 from django.contrib.auth.decorators import login_required
@@ -30,11 +30,9 @@ def create_chat_channel_button(request):
 @login_required
 def chat_interface(request, chat_channel_uuid):
     try:
-        chat_channels = ChatChannel.objects.filter(chat_uuid=chat_channel_uuid, user=request.user)
-        if chat_channels.exists():
-            chat_channel = chat_channels.order_by('-id').first()
-        else:
-            return JsonResponse({'message': 'Invalid chat channel UUID.'}, status=404)
+        chat_channel = ChatChannel.objects.get(chat_uuid=chat_channel_uuid, user=request.user)
+    except ChatChannel.DoesNotExist:
+        return JsonResponse({'message': 'Invalid chat channel UUID.'}, status=404)
     except Exception as e:
         return JsonResponse({'message': str(e)}, status=500)
 
@@ -51,9 +49,16 @@ def chat_interface(request, chat_channel_uuid):
                 message_user.user = request.user
                 message_user.chat = chat_channel
                 message_user.save()
-                ai_response_text = resx(message_user.text)
+                
+                # Convert chat messages to chat completion format
+                chat_completion = get_chat_completion(chat_channel_uuid, request.user)
+                print(chat_completion)
+                # AI response generation (assuming resx is your AI response function)
+                # Ensure resx accepts the chat_completion list
+                ai_response_text = resx(chat_completion)
                 ai_message = ChatMessage(user=request.user, text=ai_response_text, is_user_message=False, chat=chat_channel)
                 ai_message.save()
+                
                 return redirect('chat_interface', chat_channel_uuid=chat_channel.chat_uuid)
         
         elif 'file' in request.FILES:
@@ -66,13 +71,16 @@ def chat_interface(request, chat_channel_uuid):
                 loader = PyPDFLoader(file_path)
                 document = loader.load()
                 context_text = "\n\n".join([doc.page_content for doc in document])
-                # add_to_chroma(document)
-                # conversation_string = get_contexts()
+                
+                # Assuming summary is your function to summarize text
                 summy = summary(context_text)
+                
                 message_user = ChatMessage(user=request.user, text=filename, is_user_message=True, chat=chat_channel)
                 message_user.save()
+                
                 ai_message = ChatMessage(user=request.user, text=f"""{summy}""", is_user_message=False, chat=chat_channel)
                 ai_message.save()
+                
                 return redirect('chat_interface', chat_channel_uuid=chat_channel.chat_uuid)
 
     return render(request, 'ChatHub/chatInterface.html', {
