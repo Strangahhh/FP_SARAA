@@ -9,7 +9,7 @@ from ModelForge.views import get_chat_completion, resx
 from .forms import MessageForm, UploadFileForm
 from .models import ChatChannel, ChatMessage
 from django.contrib.auth.decorators import login_required
-from .chroma_utils import add_to_chroma, get_contexts, query_rag, summary
+from .chroma_utils import summary
 from langchain_community.document_loaders import PyPDFLoader
 import uuid
 
@@ -49,12 +49,7 @@ def chat_interface(request, chat_channel_uuid):
                 message_user.user = request.user
                 message_user.chat = chat_channel
                 message_user.save()
-                
-                # Convert chat messages to chat completion format
                 chat_completion = get_chat_completion(chat_channel_uuid, request.user)
-                print(chat_completion)
-                # AI response generation (assuming resx is your AI response function)
-                # Ensure resx accepts the chat_completion list
                 ai_response_text = resx(chat_completion)
                 ai_message = ChatMessage(user=request.user, text=ai_response_text, is_user_message=False, chat=chat_channel)
                 ai_message.save()
@@ -72,7 +67,6 @@ def chat_interface(request, chat_channel_uuid):
                 document = loader.load()
                 context_text = "\n\n".join([doc.page_content for doc in document])
                 
-                # Assuming summary is your function to summarize text
                 summy = summary(context_text)
                 
                 message_user = ChatMessage(user=request.user, text=filename, is_user_message=True, chat=chat_channel)

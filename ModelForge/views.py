@@ -2,12 +2,6 @@ from django.shortcuts import render
 from ChatHub.models import ChatChannel, ChatMessage
 import ollama
 
-# def resx(message):
-#     prompt = message
-#     output = ollama.generate(model="strangex/saraa-s:latest", prompt=prompt)
-#     output = output['response']
-#     return output
-
 def resx(chat_completion):
     response = ollama.chat(model='strangex/saraa-8b-orpo-aunqa', messages=chat_completion)
     return response['message']['content']
