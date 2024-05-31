@@ -9,7 +9,7 @@ import ollama
 #     return output
 
 def resx(chat_completion):
-    response = ollama.chat(model='strangex/saraa-s:latest', messages=chat_completion)
+    response = ollama.chat(model='strangex/saraa-8b-orpo-aunqa', messages=chat_completion)
     return response['message']['content']
 
 def get_chat_completion(chat_channel_uuid, user):

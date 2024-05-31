@@ -153,7 +153,7 @@ def summary(conversation_string):
     # model = Ollama(model="llama3")
     # response_text = model.invoke(prompt)
 
-    response = ollama.chat(model='llama3', messages=[
+    response = ollama.chat(model='strangex/saraa-8b-orpo-aunqa', messages=[
         # {
         # 'role': 'system',
         # 'content': prompt
