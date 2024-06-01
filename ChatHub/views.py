@@ -1,10 +1,10 @@
 # chathub/views.py
 
+import json
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.core.files.storage import FileSystemStorage
-
 from ModelForge.views import get_chat_completion, resx
 from .forms import MessageForm, UploadFileForm
 from .models import ChatChannel, ChatMessage
@@ -42,8 +42,13 @@ def chat_interface(request, chat_channel_uuid):
     upload_form = UploadFileForm()
 
     if request.method == 'POST':
-        if 'text' in request.POST:
-            message_form = MessageForm(request.POST)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'message': 'Invalid JSON'}, status=400)
+
+        if 'text' in data:
+            message_form = MessageForm({'text': data['text']})
             if message_form.is_valid():
                 message_user = message_form.save(commit=False)
                 message_user.user = request.user
@@ -53,8 +58,12 @@ def chat_interface(request, chat_channel_uuid):
                 ai_response_text = resx(chat_completion)
                 ai_message = ChatMessage(user=request.user, text=ai_response_text, is_user_message=False, chat=chat_channel)
                 ai_message.save()
-                
-                return redirect('chat_interface', chat_channel_uuid=chat_channel.chat_uuid)
+
+                return JsonResponse({
+                    'success': True,
+                    'user_message': message_user.text,
+                    'ai_message': ai_message.text
+                })
         
         elif 'file' in request.FILES:
             upload_form = UploadFileForm(request.POST, request.FILES)
@@ -75,7 +84,11 @@ def chat_interface(request, chat_channel_uuid):
                 ai_message = ChatMessage(user=request.user, text=f"""{summy}""", is_user_message=False, chat=chat_channel)
                 ai_message.save()
                 
-                return redirect('chat_interface', chat_channel_uuid=chat_channel.chat_uuid)
+                return JsonResponse({
+                    'success': True,
+                    'user_message': message_user.text,
+                    'ai_message': ai_message.text
+                })
 
     return render(request, 'ChatHub/chatInterface.html', {
         'chat_messages': chat_messages,

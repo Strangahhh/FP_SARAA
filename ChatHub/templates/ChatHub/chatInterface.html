@@ -303,6 +303,14 @@
         .drawer2-toggle-icon::after {
             bottom: -6px;
         }
+
+        .animation-delay-03 {
+            animation-delay:-0.3s
+        }
+
+        .animation-delay-015 {
+            animation-delay:-0.15s
+        }
     </style>
 </head>
 
@@ -466,6 +474,94 @@
                         }
                     }
                 });
+            });
+
+            document.getElementById('chat_message_form').addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent the form from submitting the default way
+
+                // Get the value of the input field with the name 'text'
+                let message = document.querySelector('input[name="text"]').value;
+
+                // Print the retrieved message to the console for testing
+                console.log('Message:', message);
+
+                //delete message form input
+                document.querySelector('input[name="text"]').value = '';
+
+                // Add user message to the chat area
+                let userChatBubble = document.createElement('div');
+                userChatBubble.classList.add('chat-interface');
+                let userChatHeader = document.createElement('div');
+                userChatHeader.classList.add('chat-header');
+                userChatHeader.innerText = 'You';
+                let userChatContent = document.createElement('div');
+                userChatContent.classList.add('chat-content');
+                userChatContent.innerText = message;
+                userChatBubble.appendChild(userChatHeader);
+                userChatBubble.appendChild(userChatContent);
+                document.getElementById('chat-container').appendChild(userChatBubble);
+
+                //Loading section
+                let loadingBubble = document.createElement('div');
+                loadingBubble.classList.add('chat-interface', 'loading-bubble');
+                loadingBubble.innerHTML = `
+                <div class="chat-header">Saraa</div>
+                <div class="chat-content">
+                    <div class="flex space-x-1">
+                        <div class='h-2 w-2 bg-black rounded-full animate-bounce animation-delay-03'></div>
+                        <div class='h-2 w-2 bg-black rounded-full animate-bounce animation-delay-015'></div>
+                        <div class='h-2 w-2 bg-black rounded-full animate-bounce'></div>
+                    </div>
+                </div>`;
+                document.getElementById('chat-container').appendChild(loadingBubble);
+
+                let chatContainer = document.getElementById('chat-container');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                // Send form data to the server using fetch
+                fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') // Add CSRF token
+                    },
+                    body: JSON.stringify({ text: message })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            // If the response is not ok, throw an error
+                            return response.text().then(text => { throw new Error(text) });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+
+                            document.getElementById('chat-container').removeChild(loadingBubble);
+
+                            let aiChatBubble = document.createElement('div');
+                            aiChatBubble.classList.add('chat-interface');
+                            let aiChatHeader = document.createElement('div');
+                            aiChatHeader.classList.add('chat-header');
+                            aiChatHeader.innerText = 'Saraa';
+                            let aiChatContent = document.createElement('div');
+                            aiChatContent.classList.add('chat-content');
+                            aiChatContent.innerText = data.ai_message;
+                            aiChatBubble.appendChild(aiChatHeader);
+                            aiChatBubble.appendChild(aiChatContent);
+                            document.getElementById('chat-container').appendChild(aiChatBubble);
+
+                            
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                            // Clear the form input
+                            document.querySelector('input[name="text"]').value = '';
+                        } else {
+                            console.error('Error:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             });
 
             function getCookie(name) {
