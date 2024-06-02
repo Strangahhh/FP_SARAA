@@ -50,46 +50,45 @@
         </div>
     </header>
 
-    <main class="hero-section">
-        <div class="text-center my-40">
-            <h1 class="text-6xl font-bold text-gray-900 mt-10 mb-4">Elevate Your SAR Writing with <br> AI Assistance</h1>
-            <p class="text-xl text-gray-500 mb-10 my-5">Making Quality Assurance Simpler, Faster, and Smarter.</p>
-            <div class="flex justify-center gap-4">
-                <a href="{% url 'login' %}"
-                    class="button bg-white text-gray-900 font-semibold py-2 px-4 border border-gray-300 rounded-md shadow-sm">Start
-                    Enhancing Your Reports</a>
+    <main class="hero-section ">
+        <div class="flex items-center justify-center h-screen">
+            <div class="text-center">
+                <h1 class="text-6xl font-bold text-gray-900 mt-10 mb-4">Elevate Your SAR Writing with <br> AI Assistance</h1>
+                <p class="text-xl text-gray-500 mb-10 my-5">Making Quality Assurance Simpler, Faster, and Smarter.</p>
+                <div class="flex justify-center gap-4">
+                    <a href="{% url 'login' %}"
+                        class="button bg-white text-gray-900 font-semibold py-2 px-4 border border-gray-300 rounded-md shadow-sm">
+                        Start Enhancing Your Reports
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="py-30">
-            <section class="pt-12 pb-3 bg-gray-100">
-                <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-20">
-                    <div class="text-center my-15">
+        <div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+            <section class="w-full">
+                <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <div class="my-10">
                         <h1 class="text-4xl font-bold text-gray-900 mt-10 mb-4">Project SARAA</h1>
                         <p class="text-base text-gray-500 mb-10 my-5">Project SARAA focuses on revolutionizing the creation of Self-Assessment Reports (SAR) by leveraging Large Language Model (LLM) technology. Built on a Django Framework-based web application, SARAA (Self-Assessment Report Analysis Assistant) is designed to streamline document analysis and support SAR development. The system accepts user documents, categorizes content, facilitates question and answer sessions about the content, and recommends topics that align with AUN-QA standards.</p>
                     </div>
                 </div>
             </section>
-            <section class="pb-12 bg-gray-100">
+            <section class="pb-12 w-full">
                 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- Card 1 -->
                         <div class="bg-white p-6 shadow-sm rounded-lg">
                             <h3 class="text-base font-semibold text-gray-900 mb-2">Deploy on Hugging Face and Ollama</h3>
-                            <p class="text-gray-500">The SARAA model is trained on datasets specifically related to AUN-QA standards and relevant fields. 
-                                It is then deployed on Hugging Face and Ollama platforms, ensuring robust, scalable, and efficient performance.
-                            </p>
+                            <p class="text-gray-500">The SARAA model is trained on datasets specifically related to AUN-QA standards and relevant fields. It is then deployed on Hugging Face and Ollama platforms, ensuring robust, scalable, and efficient performance.</p>
                         </div>
                         <!-- Card 2 -->
                         <div class="bg-white p-6 shadow-sm rounded-lg">
                             <h3 class="text-base font-semibold text-gray-900 mb-2">Developed with Django</h3>
-                            <p class="text-gray-500">Built with the Django Framework, SARAA offers a reliable and scalable foundation for web applications. 
-                                Django's features simplify the development and integration of complex document analysis tools.</p>
+                            <p class="text-gray-500">Built with the Django Framework, SARAA offers a reliable and scalable foundation for web applications. Django's features simplify the development and integration of complex document analysis tools.</p>
                         </div>
                         <!-- Card 3 -->
                         <div class="bg-white p-6 shadow-sm rounded-lg">
                             <h3 class="text-base font-semibold text-gray-900 mb-2">AUN-QA Standards Integration</h3>
-                            <p class="text-gray-500">SARAA integrates AUN-QA standards into its analysis and recommendations, 
-                                helping universities meet quality assurance criteria effectively and streamline the Self-Assessment Report (SAR) creation process.</p>
+                            <p class="text-gray-500">SARAA integrates AUN-QA standards into its analysis and recommendations, helping universities meet quality assurance criteria effectively and streamline the Self-Assessment Report (SAR) creation process.</p>
                         </div>
                     </div>
                 </div>
