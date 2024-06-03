@@ -1,5 +1,3 @@
-# chathub/views.py
-
 import json
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -25,7 +23,6 @@ def create_chat_channel_button(request):
         chat_channel = ChatChannel.objects.create(chat_name=chat_name, user=request.user, chat_uuid=uuid.uuid4())
         return redirect('chat_interface', chat_channel_uuid=chat_channel.chat_uuid)
     return render(request, 'ChatHub/create_chat_channel.html', {})
-
 
 @login_required
 def chat_interface(request, chat_channel_uuid):
