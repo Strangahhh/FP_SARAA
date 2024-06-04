@@ -1,15 +1,13 @@
-# chathub/views.py
-
+import json
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.core.files.storage import FileSystemStorage
-
 from ModelForge.views import get_chat_completion, resx
 from .forms import MessageForm, UploadFileForm
 from .models import ChatChannel, ChatMessage
 from django.contrib.auth.decorators import login_required
-from .chroma_utils import add_to_chroma, get_contexts, query_rag, summary
+from .chroma_utils import summary
 from langchain_community.document_loaders import PyPDFLoader
 import uuid
 
@@ -26,7 +24,6 @@ def create_chat_channel_button(request):
         return redirect('chat_interface', chat_channel_uuid=chat_channel.chat_uuid)
     return render(request, 'ChatHub/create_chat_channel.html', {})
 
-
 @login_required
 def chat_interface(request, chat_channel_uuid):
     try:
@@ -42,26 +39,7 @@ def chat_interface(request, chat_channel_uuid):
     upload_form = UploadFileForm()
 
     if request.method == 'POST':
-        if 'text' in request.POST:
-            message_form = MessageForm(request.POST)
-            if message_form.is_valid():
-                message_user = message_form.save(commit=False)
-                message_user.user = request.user
-                message_user.chat = chat_channel
-                message_user.save()
-                
-                # Convert chat messages to chat completion format
-                chat_completion = get_chat_completion(chat_channel_uuid, request.user)
-                print(chat_completion)
-                # AI response generation (assuming resx is your AI response function)
-                # Ensure resx accepts the chat_completion list
-                ai_response_text = resx(chat_completion)
-                ai_message = ChatMessage(user=request.user, text=ai_response_text, is_user_message=False, chat=chat_channel)
-                ai_message.save()
-                
-                return redirect('chat_interface', chat_channel_uuid=chat_channel.chat_uuid)
-        
-        elif 'file' in request.FILES:
+        if 'file' in request.FILES:
             upload_form = UploadFileForm(request.POST, request.FILES)
             if upload_form.is_valid():
                 file = request.FILES['file']
@@ -72,7 +50,6 @@ def chat_interface(request, chat_channel_uuid):
                 document = loader.load()
                 context_text = "\n\n".join([doc.page_content for doc in document])
                 
-                # Assuming summary is your function to summarize text
                 summy = summary(context_text)
                 
                 message_user = ChatMessage(user=request.user, text=filename, is_user_message=True, chat=chat_channel)
@@ -81,7 +58,35 @@ def chat_interface(request, chat_channel_uuid):
                 ai_message = ChatMessage(user=request.user, text=f"""{summy}""", is_user_message=False, chat=chat_channel)
                 ai_message.save()
                 
-                return redirect('chat_interface', chat_channel_uuid=chat_channel.chat_uuid)
+                return JsonResponse({
+                    'success': True,
+                    'user_message': message_user.text,
+                    'ai_message': ai_message.text
+                })
+
+        else:
+            try:
+                data = json.loads(request.body.decode('utf-8')) 
+            except json.JSONDecodeError:
+                return JsonResponse({'message': 'Invalid JSON'}, status=400)
+
+            if 'text' in data:
+                message_form = MessageForm({'text': data['text']})
+                if message_form.is_valid():
+                    message_user = message_form.save(commit=False)
+                    message_user.user = request.user
+                    message_user.chat = chat_channel
+                    message_user.save()
+                    chat_completion = get_chat_completion(chat_channel_uuid, request.user)
+                    ai_response_text = resx(chat_completion)
+                    ai_message = ChatMessage(user=request.user, text=ai_response_text, is_user_message=False, chat=chat_channel)
+                    ai_message.save()
+
+                    return JsonResponse({
+                        'success': True,
+                        'user_message': message_user.text,
+                        'ai_message': ai_message.text
+                    })
 
     return render(request, 'ChatHub/chatInterface.html', {
         'chat_messages': chat_messages,
