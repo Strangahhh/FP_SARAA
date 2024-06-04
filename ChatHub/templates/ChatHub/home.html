@@ -18,12 +18,12 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+                        <img class="h-8 w-auto" src="{% static 'ChatHub/icon/favicon-32x32.png' %}"
                             alt="Workflow">
                     </div>
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                         <a href="{% url 'home' %}"
-                            class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Saraa</a>
+                            class="border-black text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Saraa</a>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -37,7 +37,7 @@
     <main class="hero-section ">
         <div class="flex items-center justify-center h-screen">
             <div class="text-center">
-                <h1 class="text-6xl font-bold text-gray-900 mt-10 mb-4">Elevate Your SAR Writing with <br> AI Assistance</h1>
+                <h1 class="text-6xl font-bold text-gray-900 mb-4">Elevate Your SAR Writing with <br> AI Assistance</h1>
                 <p class="text-xl text-gray-500 mb-10 my-5">Making Quality Assurance Simpler, Faster, and Smarter.</p>
                 <div class="flex justify-center gap-4">
                     <a href="{% url 'login' %}"

@@ -6,9 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Chat Interface</title>
     {% load static %}
+    {% load markdown_extras %}
     <link rel="icon" type="image/x-icon" href="{% static 'ChatHub/icon/favicon-32x32.png' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'ChatHub/css/chatInterface.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .animation-delay-03 {
+            animation-delay: -0.3s
+        }
+
+        .animation-delay-015 {
+            animation-delay: -0.15s
+        }
+    </style>
 </head>
 
 <body onload="scrollToBottom()">
@@ -20,14 +30,14 @@
         <div class="chat-interface">
             <div class="chat-header">You</div>
             <div class="chat-content">
-                {{ message.text|linebreaks }}
+                {{ message.text| markdown | safe }}
             </div>
         </div>
         {% else %}
         <div class="chat-interface">
             <div class="chat-header">Saraa</div>
             <div class="chat-content">
-                {{ message.text|linebreaks }}
+                {{ message.text| markdown | safe }}
             </div>
         </div>
         {% endif %}
@@ -88,7 +98,8 @@
                     <!-- Sidebar content goes here -->
                     <ul>
                         <h3 class="font-bold">Upload a PDF</h3>
-                        <form method="post" action="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}"
+                        <form id="file_upload_form" method="post"
+                            action="{% url 'chat_interface' chat_channel_uuid=chat_channel.chat_uuid %}"
                             enctype="multipart/form-data" class="items-center justify-center w-full my-3">
                             {% csrf_token %}
                             <label for="dropzone-file"
@@ -214,6 +225,7 @@
 
                 let chatContainer = document.getElementById('chat-container');
                 chatContainer.scrollTop = chatContainer.scrollHeight;
+
                 // Send form data to the server using fetch
                 fetch(window.location.href, {
                     method: 'POST',
@@ -247,7 +259,7 @@
                             aiChatBubble.appendChild(aiChatContent);
                             document.getElementById('chat-container').appendChild(aiChatBubble);
 
-                            
+
                             chatContainer.scrollTop = chatContainer.scrollHeight;
 
                             // Clear the form input
@@ -260,6 +272,91 @@
                         console.error('Error:', error);
                     });
             });
+
+            document.getElementById('file_upload_form').addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                const formData = new FormData(this);
+
+                // Print the file name for testing
+                let fileInput = document.getElementById('dropzone-file');
+                console.log('File:', fileInput.files[0].name);
+
+                // Add user message to the chat area (indicating file upload)
+                let userChatBubble = document.createElement('div');
+                userChatBubble.classList.add('chat-interface');
+                let userChatHeader = document.createElement('div');
+                userChatHeader.classList.add('chat-header');
+                userChatHeader.innerText = 'You';
+                let userChatContent = document.createElement('div');
+                userChatContent.classList.add('chat-content');
+                userChatContent.innerText = document.getElementById('file-name').innerText;
+                userChatBubble.appendChild(userChatHeader);
+                userChatBubble.appendChild(userChatContent);
+                document.getElementById('chat-container').appendChild(userChatBubble);
+
+                //Loading section
+                let loadingBubble = document.createElement('div');
+                loadingBubble.classList.add('chat-interface', 'loading-bubble');
+                loadingBubble.innerHTML = `
+                <div class="chat-header">Saraa</div>
+                <div class="chat-content">
+                    <div class="flex space-x-1">
+                        <div class='h-2 w-2 bg-gray-700 rounded-full animate-bounce animation-delay-03'></div>
+                        <div class='h-2 w-2 bg-gray-700 rounded-full animate-bounce animation-delay-015'></div>
+                        <div class='h-2 w-2 bg-gray-700 rounded-full animate-bounce'></div>
+                    </div>
+                </div>`;
+                document.getElementById('chat-container').appendChild(loadingBubble);
+
+                let chatContainer = document.getElementById('chat-container');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                // Send the form data to the server using fetch
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        console.log("POST Process");
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("Get return data process");
+                        // Remove loading section
+                        document.getElementById('chat-container').removeChild(loadingBubble);
+
+                        // Add AI message to the chat area
+                        let aiChatBubble = document.createElement('div');
+                        aiChatBubble.classList.add('chat-interface');
+                        let aiChatHeader = document.createElement('div');
+                        aiChatHeader.classList.add('chat-header');
+                        aiChatHeader.innerText = 'Saraa';
+                        let aiChatContent = document.createElement('div');
+                        aiChatContent.classList.add('chat-content');
+                        aiChatContent.innerText = data.ai_message;
+                        aiChatBubble.appendChild(aiChatHeader);
+                        aiChatBubble.appendChild(aiChatContent);
+                        document.getElementById('chat-container').appendChild(aiChatBubble);
+
+                        // Scroll to the bottom of the chat area
+                        scrollToBottom();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Remove loading section if an error occurs
+                        let loadingBubble = document.getElementById('loading-bubble');
+                        if (loadingBubble) {
+                            loadingBubble.parentNode.removeChild(loadingBubble);
+                        }
+                        alert('An error occurred while uploading the file.');
+                    });
+            });
+
+
 
             function getCookie(name) {
                 let cookieValue = null;

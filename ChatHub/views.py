@@ -39,30 +39,7 @@ def chat_interface(request, chat_channel_uuid):
     upload_form = UploadFileForm()
 
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({'message': 'Invalid JSON'}, status=400)
-
-        if 'text' in data:
-            message_form = MessageForm({'text': data['text']})
-            if message_form.is_valid():
-                message_user = message_form.save(commit=False)
-                message_user.user = request.user
-                message_user.chat = chat_channel
-                message_user.save()
-                chat_completion = get_chat_completion(chat_channel_uuid, request.user)
-                ai_response_text = resx(chat_completion)
-                ai_message = ChatMessage(user=request.user, text=ai_response_text, is_user_message=False, chat=chat_channel)
-                ai_message.save()
-
-                return JsonResponse({
-                    'success': True,
-                    'user_message': message_user.text,
-                    'ai_message': ai_message.text
-                })
-        
-        elif 'file' in request.FILES:
+        if 'file' in request.FILES:
             upload_form = UploadFileForm(request.POST, request.FILES)
             if upload_form.is_valid():
                 file = request.FILES['file']
@@ -86,6 +63,30 @@ def chat_interface(request, chat_channel_uuid):
                     'user_message': message_user.text,
                     'ai_message': ai_message.text
                 })
+
+        else:
+            try:
+                data = json.loads(request.body.decode('utf-8')) 
+            except json.JSONDecodeError:
+                return JsonResponse({'message': 'Invalid JSON'}, status=400)
+
+            if 'text' in data:
+                message_form = MessageForm({'text': data['text']})
+                if message_form.is_valid():
+                    message_user = message_form.save(commit=False)
+                    message_user.user = request.user
+                    message_user.chat = chat_channel
+                    message_user.save()
+                    chat_completion = get_chat_completion(chat_channel_uuid, request.user)
+                    ai_response_text = resx(chat_completion)
+                    ai_message = ChatMessage(user=request.user, text=ai_response_text, is_user_message=False, chat=chat_channel)
+                    ai_message.save()
+
+                    return JsonResponse({
+                        'success': True,
+                        'user_message': message_user.text,
+                        'ai_message': ai_message.text
+                    })
 
     return render(request, 'ChatHub/chatInterface.html', {
         'chat_messages': chat_messages,
