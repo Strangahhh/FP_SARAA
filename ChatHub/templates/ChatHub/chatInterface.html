@@ -89,6 +89,13 @@
                             <button type="submit" class="drawer-link my-3">Logout</button>
                         </form>
                     </ul>
+                    <ul>
+                        {% if user.is_superuser %}
+                        <li>
+                            <a href="{% url 'management' %}" class="drawer-link my-3 text-blue-600">Manage Users</a>
+                        </li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
 

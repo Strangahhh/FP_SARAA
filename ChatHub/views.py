@@ -93,7 +93,8 @@ def chat_interface(request, chat_channel_uuid):
         'message_form': message_form,
         'upload_form': upload_form,
         'chat_channel': chat_channel,
-        'chat_channels_list': chat_channels_list
+        'chat_channels_list': chat_channels_list,
+        'user': request.user
     })
 
 @login_required
