@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +7,7 @@
     {% load static %}
     <link rel="icon" type="image/x-icon" href="{% static 'ChatHub/icon/favicon-32x32.png' %}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -26,7 +26,7 @@
         .table-title {
             font-size: 24px;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         table {
@@ -56,10 +56,12 @@
         }
     </style>
 </head>
-
 <body>
     <div class="table-container">
-        <div class="table-title">Management</div>
+        <div class="grid">
+            <div class="table-title">Management</div>
+            <div class="mb-5"><a href="{% url 'create_user' %}" class="btn btn-success">Add New User</a></div>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -67,6 +69,7 @@
                     <th>Email</th>
                     <th>Chat count</th>
                     <th>Staff</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -76,17 +79,20 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.chat_count }}</td>
                     <td>{{ user.is_staff }}</td>
+                    <td>
+                        <a href="{% url 'update_user' user.id %}" class="btn btn-info">Edit</a>
+                        <a href="{% url 'delete_user' user.id %}" class="btn btn-error">Delete</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         <div class="grid justify-items-end m-4">
             {% if first_chat_channel_back %}
-            <div><a href="{% url 'chat_interface' first_chat_channel_back.chat_uuid %}" class="link-primary">Back</a>
+            <div><a href="{% url 'chat_interface' first_chat_channel_back.chat_uuid %}" class="btn btn-active btn-neutral">Back</a>
             </div>
             {% endif %}
         </div>
     </div>
 </body>
-
 </html>

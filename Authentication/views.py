@@ -1,7 +1,7 @@
 import uuid
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from ChatHub.models import ChatChannel
-from .forms import RegisterForm, CustomAuthenticationForm
+from .forms import CustomUserForm, RegisterForm, CustomAuthenticationForm
 from django.contrib.auth import login, authenticate
 from .models import CustomUser
 from django.contrib.auth.decorators import user_passes_test
@@ -53,28 +53,56 @@ def login_request(request):
     return render(request, 'Authentication/login.html')
 
 @user_passes_test(superuser_required)
-def management_view(request):
+def management(request):
     chat_channels_back = ChatChannel.objects.filter(user=request.user)
     users = CustomUser.objects.all()
-
     user_data = []
 
     for user in users:
         chat_channels = ChatChannel.objects.filter(user=user)
-        first_chat_channel = chat_channels_back
         chat_count = chat_channels.count()
         user_data.append({
+            'id': user.id,  # Ensure the ID is included
             'name': user.name,
             'email': user.email,
             'chat_count': chat_count,
             'is_staff': user.is_staff,
-            'first_chat_channel': first_chat_channel,
         })
 
-    chat_channels_back = ChatChannel.objects.filter(user=request.user)
     first_chat_channel_back = chat_channels_back.first() if chat_channels_back.exists() else None
 
     return render(request, 'Authentication/management.html', {
         'users': user_data,
         'first_chat_channel_back': first_chat_channel_back,
     })
+
+@user_passes_test(superuser_required)
+def create_user(request):
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('management')
+    else:
+        form = CustomUserForm()
+    return render(request, 'Authentication/user_form.html', {'form': form, 'title': 'Create User'})
+
+@user_passes_test(superuser_required)
+def update_user(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('management')
+    else:
+        form = CustomUserForm(instance=user)
+    return render(request, 'Authentication/user_form.html', {'form': form, 'title': 'Update User'})
+
+@user_passes_test(superuser_required)
+def delete_user(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    if request.method == 'POST':
+        user.delete()
+        return redirect('management')
+    return render(request, 'Authentication/user_confirm_delete.html', {'user': user})
