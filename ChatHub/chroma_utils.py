@@ -49,7 +49,7 @@ def summary(conversation_string):
     prompt_template = ChatPromptTemplate.from_template(prompt_summarize)
     prompt = prompt_template.format(context=conversation_string)
 
-    response = ollama.chat(model='llama3', messages=[
+    response = ollama.chat(model='saraa-ss', messages=[
     {
         'role': 'user',
         'content': prompt,

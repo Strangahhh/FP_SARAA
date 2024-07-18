@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Table</title>
+    {% load static %}
+    <link rel="icon" type="image/x-icon" href="{% static 'ChatHub/icon/favicon-32x32.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .table-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .table-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f1f1f1;
+            font-weight: 700;
+        }
+
+        .link-primary {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .link-primary:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <div class="grid">
+            <div class="table-title">Management</div>
+            <div class="mb-5"><a href="{% url 'create_user' %}" class="btn btn-success">Add New User</a></div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Chat count</th>
+                    <th>Staff</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.chat_count }}</td>
+                    <td>{{ user.is_staff }}</td>
+                    <td>
+                        <a href="{% url 'update_user' user.id %}" class="btn btn-info">Edit</a>
+                        <a href="{% url 'delete_user' user.id %}" class="btn btn-error">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="grid justify-items-end m-4">
+            {% if first_chat_channel_back %}
+            <div><a href="{% url 'chat_interface' first_chat_channel_back.chat_uuid %}" class="btn btn-active btn-neutral">Back</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
